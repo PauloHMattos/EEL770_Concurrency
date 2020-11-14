@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "cmath": "c"
+        "*.pys": "coffeescript",
+        "cmath": "c",
+        "condition_variable": "c"
     }
 }

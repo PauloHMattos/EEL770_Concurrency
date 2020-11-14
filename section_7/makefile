@@ -20,8 +20,10 @@ CC_FLAGS=-c         \
          -W         \
          -Wall      \
          -pedantic  \
-		 -g
+		 -g			\
+		 -D_POSIX_THREAD_SEMANTICS
 
+LDFLAGS = -pthread
 # Command used at clean target
 RM = rm -rf
 
@@ -32,7 +34,7 @@ all: objFolder $(PROJ_NAME)
 
 $(PROJ_NAME): $(OBJ)
 	@ echo 'Building binary using GCC linker: $@'
-	$(CC) $^ -o $@
+	$(CC) $< $(LDFLAGS) -o $@
 	@ echo 'Finished building binary: $@'
 	@ echo ' '
 
