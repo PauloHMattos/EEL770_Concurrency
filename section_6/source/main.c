@@ -14,21 +14,21 @@ int main()
     pthread_t removerThreads[REMOVER_COUNT];
 
     int threadIds[SEARCHER_COUNT + INSERTER_COUNT + REMOVER_COUNT];
-    
+
     for (int i = 0; i < SEARCHER_COUNT; i++)
     {
         threadIds[i] = i + 1;
-        pthread_create(&searcherThreads[i], NULL, &searcher, &threadIds[i]);
+        pthread_create(&searcherThreads[i], NULL, searcherThread, &threadIds[i]);
     }
     for (int i = 0; i < INSERTER_COUNT; i++)
     {
         threadIds[i + SEARCHER_COUNT] = i + 1;
-        pthread_create(&inserterThreads[i], NULL, &inserter, &threadIds[i + SEARCHER_COUNT]);
+        pthread_create(&inserterThreads[i], NULL, inserterThread, &threadIds[i + SEARCHER_COUNT]);
     }
     for (int i = 0; i < REMOVER_COUNT; i++)
     {
         threadIds[i + SEARCHER_COUNT + INSERTER_COUNT] = i + 1;
-        pthread_create(&removerThreads[i], NULL, &remover, &threadIds[i + SEARCHER_COUNT + INSERTER_COUNT]);
+        pthread_create(&removerThreads[i], NULL, deleterThread, &threadIds[i + SEARCHER_COUNT + INSERTER_COUNT]);
     }
 
     pthread_join(removerThreads[0], NULL);
@@ -49,39 +49,42 @@ void insertList(int inserterId)
     pthread_rwlock_unlock(&readWriteLock);
 }
 
-void removeList(int removerId)
+void removeList(int deleterId)
 {
     pthread_rwlock_wrlock(&readWriteLock);
-    printf("[Remover %i] Removing item\n", removerId);
+    printf("[Deleter %i] Removing item\n", deleterId);
     pthread_rwlock_unlock(&readWriteLock);
 }
 
-void searcher(void* searcherIdPtr)
+void *searcherThread(void *searcherIdPtr)
 {
-    int searcherId = *(int*)searcherIdPtr;
+    int searcherId = *(int *)searcherIdPtr;
+    int threadId = pthread_self();
     while (1)
     {
         searchList(searcherId);
-        sleep(1);
+        randomSleep(threadId, 10);
     }
 }
 
-void inserter(void* inserterIdPtr)
+void *inserterThread(void *inserterIdPtr)
 {
-    int inserterId = *(int*)inserterIdPtr;
+    int inserterId = *(int *)inserterIdPtr;
+    int threadId = pthread_self();
     while (1)
     {
         insertList(inserterId);
-        sleep(1);
+        randomSleep(threadId, 10);
     }
 }
 
-void remover(void* removerIdPtr)
+void *deleterThread(void *deleterIdPtr)
 {
-    int removerId = *(int*)removerIdPtr;
+    int deleterId = *(int *)deleterIdPtr;
+    int threadId = pthread_self();
     while (1)
     {
-        removeList(removerId);
-        sleep(1);
+        removeList(deleterId);
+        randomSleep(threadId, 10);
     }
 }
