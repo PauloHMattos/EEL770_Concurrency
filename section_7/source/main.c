@@ -4,12 +4,12 @@ int eating = 0;
 pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutexFull = PTHREAD_MUTEX_INITIALIZER;
 
-void enter_bar(void *threadNumPtr)
+void enter_bar(void *clientIdPtr)
 {
-    int threadNum = *((int *)threadNumPtr);
+    int clientId = *((int *)clientIdPtr);
     pthread_mutex_lock(&mutexFull);
     pthread_mutex_lock(&mtx);
-    printf("<<<<<<<<<<: Cliente %i sentou\n", threadNum);
+    printf("<<<<<<<<<<: Cliente %i sentou\n", clientId);
     eating++;
 
     if (eating < 5)
@@ -31,14 +31,13 @@ void enter_bar(void *threadNumPtr)
     waitFor(eatingTime);
 
     // Sai do bar
-    exit_bar(threadNum);
-    free(threadNumPtr);
+    exit_bar(clientId);
 }
 
-void exit_bar(int threadNum)
+void exit_bar(int clientId)
 {
     pthread_mutex_lock(&mtx);
-    printf(">>>>>>>>>>: Cliente %i saiu\n", threadNum);
+    printf(">>>>>>>>>>: Cliente %i saiu\n", clientId);
     eating--;
     if (eating == 0)
     {
@@ -57,11 +56,12 @@ void exit_bar(int threadNum)
 int main()
 {
     pthread_t threads[CLIENTS];
+    int clientIds[CLIENTS];
+
     for (int i = 0; i < CLIENTS; i++)
     {
-        int *threadId = malloc(sizeof(*threadId));
-        *threadId = i;
-        pthread_create(&threads[i], NULL, enter_bar, (void *)threadId);
+        clientIds[i] = i + 1;
+        pthread_create(&threads[i], NULL, &enter_bar, &clientIds[i]);
     }
 
     for (int i = 0; i < CLIENTS; i++)

@@ -1,5 +1,5 @@
 #include <stdio.h>
 
 
-void *cooker();
-void *savage();
+void cooker();
+void savage(void* savageIdPtr);

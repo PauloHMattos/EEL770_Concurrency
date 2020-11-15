@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-void* searcher();
-void* inserter();
-void* remover();
+void searcher(void* searcherIdPtr);
+void inserter(void* inserterIdPtr);
+void remover(void* removerIdPtr);
 
-void searchList();
-void insertList();
-void deleteList();
+void searchList(int searcherId);
+void insertList(int inserterId);
+void removeList(int removerId);

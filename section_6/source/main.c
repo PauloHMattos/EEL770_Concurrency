@@ -12,68 +12,76 @@ int main()
     pthread_t searcherThreads[SEARCHER_COUNT];
     pthread_t inserterThreads[INSERTER_COUNT];
     pthread_t removerThreads[REMOVER_COUNT];
+
+    int threadIds[SEARCHER_COUNT + INSERTER_COUNT + REMOVER_COUNT];
     
     for (int i = 0; i < SEARCHER_COUNT; i++)
     {
-        pthread_create(&searcherThreads[i], NULL, searcher, NULL);
+        threadIds[i] = i + 1;
+        pthread_create(&searcherThreads[i], NULL, &searcher, &threadIds[i]);
     }
     for (int i = 0; i < INSERTER_COUNT; i++)
     {
-        pthread_create(&inserterThreads[i], NULL, inserter, NULL);
+        threadIds[i + SEARCHER_COUNT] = i + 1;
+        pthread_create(&inserterThreads[i], NULL, &inserter, &threadIds[i + SEARCHER_COUNT]);
     }
     for (int i = 0; i < REMOVER_COUNT; i++)
     {
-        pthread_create(&removerThreads[i], NULL, remover, NULL);
+        threadIds[i + SEARCHER_COUNT + INSERTER_COUNT] = i + 1;
+        pthread_create(&removerThreads[i], NULL, &remover, &threadIds[i + SEARCHER_COUNT + INSERTER_COUNT]);
     }
 
     pthread_join(removerThreads[0], NULL);
     return 0;
 }
 
-void searchList()
+void searchList(int searcherId)
 {
     pthread_rwlock_rdlock(&readWriteLock);
-    printf("Searching item\n");
+    printf("[Searcher %i] Searching item\n", searcherId);
     pthread_rwlock_unlock(&readWriteLock);
 }
 
-void insertList()
+void insertList(int inserterId)
 {
     pthread_rwlock_wrlock(&readWriteLock);
-    printf("Inserting item\n");
+    printf("[Inserter %i] Inserting item\n", inserterId);
     pthread_rwlock_unlock(&readWriteLock);
 }
 
-void removeList()
+void removeList(int removerId)
 {
     pthread_rwlock_wrlock(&readWriteLock);
-    printf("Removing item\n");
+    printf("[Remover %i] Removing item\n", removerId);
     pthread_rwlock_unlock(&readWriteLock);
 }
 
-void *searcher()
+void searcher(void* searcherIdPtr)
 {
+    int searcherId = *(int*)searcherIdPtr;
     while (1)
     {
-        searchList();
+        searchList(searcherId);
         sleep(1);
     }
 }
 
-void *inserter()
+void inserter(void* inserterIdPtr)
 {
+    int inserterId = *(int*)inserterIdPtr;
     while (1)
     {
-        insertList();
+        insertList(inserterId);
         sleep(1);
     }
 }
 
-void *remover()
+void remover(void* removerIdPtr)
 {
+    int removerId = *(int*)removerIdPtr;
     while (1)
     {
-        removeList();
+        removeList(removerId);
         sleep(1);
     }
 }

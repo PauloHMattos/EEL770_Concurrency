@@ -16,9 +16,12 @@ int main()
     pthread_create(&cookThread, NULL, cooker, NULL);
     
     pthread_t savageThreads[SAVAGES];
+    int savageIds[SAVAGES];
+
     for (int i = 0; i < SAVAGES; i++)
     {
-        pthread_create(&savageThreads[i], NULL, savage, NULL);
+        savageIds[i] = i + 1;
+        pthread_create(&savageThreads[i], NULL, &savage, &savageIds[i]);
     }
 
     // Join the cook thread so that the execution won't finish until the thread does
@@ -26,7 +29,7 @@ int main()
     return 0;
 }
 
-void *cooker()
+void cooker()
 {
     while(1)
     {
@@ -37,14 +40,15 @@ void *cooker()
         }
         
         servings = CAPACITY;
-        printf("Cozinheiro encheu o pote\n");
+        printf("[Cozinheiro] Encheu o pote\n");
         pthread_cond_signal(&fullCond);
         pthread_mutex_unlock(&mutex);
     }
 }
 
-void *savage()
+void savage(void* savageIdPtr)
 {
+    int savageId = *(int*)savageIdPtr;
     while(1)
     {
         pthread_mutex_lock(&mutex);
@@ -55,7 +59,7 @@ void *savage()
         }
 
         servings--;
-        printf("Selvagem pegou uma porção\n");
+        printf("[Selvagem] %i pegou uma porção\n", savageId);
         pthread_mutex_unlock(&mutex);
         usleep(100000);
     }
