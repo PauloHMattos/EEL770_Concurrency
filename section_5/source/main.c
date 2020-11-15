@@ -1,7 +1,8 @@
 #include "main.h"
 #include <pthread.h>
 
-#define CAPACITY 2
+#define CAPACITY 10
+#define SAVAGES 5
 
 volatile int servings = CAPACITY;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -14,8 +15,8 @@ int main()
     pthread_t cookThread;
     pthread_create(&cookThread, NULL, cooker, NULL);
     
-    pthread_t savageThreads[10];
-    for (int i = 0; i < 10; i++)
+    pthread_t savageThreads[SAVAGES];
+    for (int i = 0; i < SAVAGES; i++)
     {
         pthread_create(&savageThreads[i], NULL, savage, NULL);
     }
@@ -56,5 +57,6 @@ void *savage()
         servings--;
         printf("Selvagem pegou uma porção\n");
         pthread_mutex_unlock(&mutex);
+        usleep(100000);
     }
 }
