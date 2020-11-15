@@ -4,6 +4,11 @@
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
+void *clientThread(void *clientIdPtr);
+
+void enterBar(int clientId);
+void exitBar(int clientId);
+
 int getRandom(int seed, int max)
 {
     srand(time(NULL) + seed);
